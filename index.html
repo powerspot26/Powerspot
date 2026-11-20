@@ -2292,14 +2292,6 @@ function scrollToRental() {
 let currentUser = null;
 let lastReceipt = null;
 
-function getAccounts() {
-    try { return JSON.parse(localStorage.getItem("powerspotAccounts") || "[]"); } catch(e) { return []; }
-}
-function saveAccounts(accs) { localStorage.setItem("powerspotAccounts", JSON.stringify(accs)); }
-function getCurrentUser() {
-    try { return JSON.parse(localStorage.getItem("powerspotCurrentUser") || "null"); } catch(e) { return null; }
-}
-
 function openLogin(tab = "login") {
     clearMessages();
     showLoginTab(tab);
@@ -2326,7 +2318,7 @@ function showLoginTab(type) {
     }
 }
 
-function registerUser() {
+async function registerUser() {
     const name = document.getElementById("registerName").value.trim();
     const email = document.getElementById("registerEmail").value.trim().toLowerCase();
     const pass = document.getElementById("registerPassword").value;
@@ -2336,37 +2328,56 @@ function registerUser() {
     if(pass.length < 6) { showMessage("registerMessage", "La contraseña debe tener al menos 6 caracteres.", "error"); return; }
     if(pass !== pass2) { showMessage("registerMessage", "Las contraseñas no coinciden.", "error"); return; }
 
-    const accounts = getAccounts();
-    if(accounts.some(a => a.email === email)) { showMessage("registerMessage", "Ya existe una cuenta con este correo.", "error"); return; }
+    try {
+        const respuesta = await fetch("registro.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ nombre: name, email: email, password: pass })
+        });
 
-    const newAcc = { id: "USER-" + Date.now(), name, email, password: pass };
-    accounts.push(newAcc);
-    saveAccounts(accounts);
+        const resultado = await respuesta.json();
 
-    currentUser = { id: newAcc.id, name: newAcc.name, email: newAcc.email };
-    localStorage.setItem("powerspotCurrentUser", JSON.stringify(currentUser));
-    updateHeader();
-
-    showMessage("registerMessage", "✅ ¡Cuenta creada con éxito! Iniciando sesión...", "success");
-    setTimeout(() => { closeModal("loginModal"); }, 1000);
+        if (resultado.success) {
+            showMessage("registerMessage", "✅ " + resultado.message, "success");
+            setTimeout(() => { closeModal("loginModal"); }, 1000);
+        } else {
+            showMessage("registerMessage", resultado.message, "error");
+        }
+    } catch (error) {
+        console.error("Error en la petición:", error);
+        showMessage("registerMessage", "Ocurrió un error al conectar con el servidor.", "error");
+    }
 }
 
-function loginUser() {
+async function loginUser() {
     const email = document.getElementById("loginEmail").value.trim().toLowerCase();
     const pass = document.getElementById("loginPassword").value;
 
     if(!email || !pass) { showMessage("loginMessage", "Escribe tu correo y contraseña.", "error"); return; }
 
-    const accounts = getAccounts();
-    const acc = accounts.find(a => a.email === email && a.password === pass);
-    if(!acc) { showMessage("loginMessage", "Correo o contraseña incorrectos.", "error"); return; }
+    try {
+        const respuesta = await fetch("login.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: email, password: pass })
+        });
 
-    currentUser = { id: acc.id, name: acc.name, email: acc.email };
-    localStorage.setItem("powerspotCurrentUser", JSON.stringify(currentUser));
-    updateHeader();
+        const resultado = await respuesta.json();
 
-    showMessage("loginMessage", `✅ Bienvenido/a, ${acc.name}.`, "success");
-    setTimeout(() => { closeModal("loginModal"); }, 800);
+        if (resultado.success) {
+            currentUser = resultado.user; 
+            localStorage.setItem("powerspotCurrentUser", JSON.stringify(currentUser));
+            updateHeader();
+
+            showMessage("loginMessage", `✅ ${resultado.message}`, "success");
+            setTimeout(() => { closeModal("loginModal"); }, 800);
+        } else {
+            showMessage("loginMessage", resultado.message, "error");
+        }
+    } catch (error) {
+        console.error("Error en la petición:", error);
+        showMessage("loginMessage", "Ocurrió un error al iniciar sesión.", "error");
+    }
 }
 
 function logoutUser() {
@@ -2379,8 +2390,9 @@ function logoutUser() {
 function updateHeader() {
     const navButtons = document.getElementById("navButtons");
     if(currentUser) {
+        const userName = currentUser.name || currentUser.nombre;
         navButtons.innerHTML = `
-            <button class="btn btn-outline" onclick="showUserMenu()">👤 ${currentUser.name}</button>
+            <button class="btn btn-outline" onclick="showUserMenu()">👤 ${userName}</button>
             <button class="btn btn-primary" onclick="scrollToRental()">Rentar</button>
         `;
     } else {
@@ -2392,20 +2404,23 @@ function updateHeader() {
 }
 
 function showUserMenu() {
-    if(confirm(`Sesión activa como ${currentUser.name}.\n\n¿Deseas cerrar sesión?`)) {
+    const userName = currentUser.name || currentUser.nombre;
+    if(confirm(`Sesión activa como ${userName}.\n\n¿Deseas cerrar sesión?`)) {
         logoutUser();
     }
 }
 
 function restoreSession() {
-    currentUser = getCurrentUser();
+    currentUser = JSON.parse(localStorage.getItem("powerspotCurrentUser") || "null");
     updateHeader();
 }
 
 function showMessage(id, text, type) {
     const box = document.getElementById(id);
-    box.className = "message " + type;
-    box.textContent = text;
+    if(box) {
+        box.className = "message " + type;
+        box.textContent = text;
+    }
 }
 
 function clearMessages() {
@@ -2414,7 +2429,6 @@ function clearMessages() {
         if(el) { el.className = "message"; el.textContent = ""; }
     });
 }
-
 
 /* ==========================================================
    PAGO Y TARJETA DE PRUEBA
@@ -2768,6 +2782,80 @@ function filtrarTodoPorEstado() {
 document.getElementById("stateFilter")?.addEventListener("change", filtrarTodoPorEstado);
 document.getElementById("searchInput")?.addEventListener("input", filtrarTodoPorEstado);
 document.getElementById("availabilityFilter")?.addEventListener("change", filtrarTodoPorEstado);
+
+/* ==========================================================
+   CONEXIÓN DE REGISTRO CON PHP Y MYSQL
+========================================================== */
+const registerForm = document.getElementById("formRegistro"); // Reemplaza "formRegistro" con el ID de tu formulario de registro en HTML
+
+if (registerForm) {
+    registerForm.addEventListener("submit", async function(e) {
+        e.preventDefault();
+
+        // Obtén los valores de los inputs (cambia los IDs según tu HTML)
+        const nombre = document.getElementById("regNombre").value;
+        const email = document.getElementById("regEmail").value;
+        const password = document.getElementById("regPassword").value;
+
+        try {
+            const respuesta = await fetch("registro.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ nombre, email, password })
+            });
+
+            const resultado = await respuesta.json();
+            alert(resultado.message); // Muestra el mensaje de éxito o error devuelto por PHP
+
+            if (resultado.success) {
+                registerForm.reset(); // Limpiar formulario si fue exitoso
+                // Aquí puedes cerrar el modal de registro si usas alguno
+            }
+        } catch (error) {
+            console.error("Error en la petición:", error);
+            alert("Ocurrió un error al conectar con el servidor.");
+        }
+    });
+}
+
+
+/* ==========================================================
+   CONEXIÓN DE INICIO DE SESIÓN CON PHP Y MYSQL
+========================================================== */
+const loginForm = document.getElementById("formLogin"); // Reemplaza "formLogin" con el ID de tu formulario de login en HTML
+
+if (loginForm) {
+    loginForm.addEventListener("submit", async function(e) {
+        e.preventDefault();
+
+        // Obtén los valores de los inputs (cambia los IDs según tu HTML)
+        const email = document.getElementById("loginEmail").value;
+        const password = document.getElementById("loginPassword").value;
+
+        try {
+            const respuesta = await fetch("login.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password })
+            });
+
+            const resultado = await respuesta.json();
+            alert(resultado.message);
+
+            if (resultado.success) {
+                // Guardar la sesión localmente si lo deseas
+                localStorage.setItem("usuarioLogueado", JSON.stringify(resultado.user));
+                
+                // Recargar o redirigir para actualizar la interfaz
+                window.location.reload(); 
+            }
+        } catch (error) {
+            console.error("Error en la petición:", error);
+            alert("Ocurrió un error al iniciar sesión.");
+        }
+    });
+}
+
 </script>
 
 </body>
