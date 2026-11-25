@@ -1,0 +1,2519 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PowerSpot | Energía donde la necesitas (LATAM)</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+<style>
+:root{
+    --navy:#050b14;
+    --navy2:#0a1727;
+    --cyan:#00f2fe;
+    --blue:#4facfe;
+    --purple:#b174ff;
+    --neon-green:#00ff9d;
+    --neon-pink:#ff2a85;
+    --white:#ffffff;
+    --light:#f0f7ff;
+    --gray:#8ca6c1;
+    --card-bg:rgba(255, 255, 255, 0.04);
+    --border-color:rgba(0, 242, 254, 0.25);
+    --shadow:0 20px 50px rgba(0, 242, 254, 0.15);
+}
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    scroll-behavior:smooth;
+}
+
+body{
+    font-family:'Montserrat',sans-serif;
+    background:var(--navy);
+    color:var(--white);
+    overflow-x:hidden;
+}
+
+a{
+    text-decoration:none;
+    color:inherit;
+}
+
+button,input,select{
+    font-family:inherit;
+}
+
+button{
+    cursor:pointer;
+}
+
+/* HEADER */
+header{
+    position:sticky;
+    top:0;
+    z-index:2000;
+    background:rgba(5, 11, 20, 0.92);
+    backdrop-filter:blur(20px);
+    border-bottom:1px solid var(--border-color);
+}
+
+.navbar{
+    max-width:1400px;
+    margin:auto;
+    min-height:80px;
+    padding:0 30px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+}
+
+.logo{
+    font-size:28px;
+    font-weight:900;
+    letter-spacing:1px;
+    color:white;
+}
+
+.logo span{
+    background:linear-gradient(135deg,var(--cyan),var(--blue));
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+}
+
+.logo small{
+    display:block;
+    font-size:8px;
+    letter-spacing:4px;
+    color:var(--neon-green);
+    margin-top:-3px;
+    font-weight:700;
+}
+
+nav{
+    display:flex;
+    align-items:center;
+    gap:25px;
+}
+
+nav a{
+    color:var(--gray);
+    font-size:14px;
+    font-weight:600;
+    transition:.3s;
+}
+
+nav a:hover{
+    color:var(--cyan);
+    text-shadow:0 0 10px rgba(0,242,254,0.6);
+}
+
+.nav-buttons{
+    display:flex;
+    gap:12px;
+    align-items:center;
+}
+
+.btn{
+    border:none;
+    border-radius:14px;
+    padding:12px 22px;
+    font-weight:700;
+    font-size:13px;
+    transition:.3s;
+}
+
+.btn-primary{
+    background:linear-gradient(135deg,var(--cyan),var(--blue));
+    color:var(--navy);
+    box-shadow:0 10px 25px rgba(0,242,254,0.3);
+}
+
+.btn-primary:hover{
+    transform:translateY(-3px);
+    box-shadow:0 15px 35px rgba(0,242,254,0.5);
+}
+
+.btn-outline{
+    background:transparent;
+    border:1px solid var(--border-color);
+    color:white;
+}
+
+.btn-outline:hover{
+    background:rgba(0,242,254,0.1);
+    border-color:var(--cyan);
+    color:var(--cyan);
+}
+
+/* HERO SECTION */
+.hero{
+    min-height:750px;
+    background:
+        radial-gradient(circle at 85% 20%, rgba(177, 116, 255, 0.15), transparent 40%),
+        radial-gradient(circle at 15% 80%, rgba(0, 242, 254, 0.15), transparent 40%),
+        linear-gradient(135deg,#050b14,#0e223f);
+    display:flex;
+    align-items:center;
+    position:relative;
+}
+
+.hero-content{
+    max-width:1400px;
+    width:100%;
+    margin:auto;
+    padding:80px 30px;
+    display:grid;
+    grid-template-columns:1.2fr 0.8fr;
+    gap:60px;
+    align-items:center;
+}
+
+.hero-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    background:rgba(0, 255, 157, 0.1);
+    border:1px solid rgba(0, 255, 157, 0.4);
+    padding:8px 18px;
+    border-radius:50px;
+    color:var(--neon-green);
+    font-size:12px;
+    font-weight:700;
+    margin-bottom:25px;
+    box-shadow:0 0 20px rgba(0,255,157,0.15);
+}
+
+.hero h1{
+    font-size:clamp(45px, 6vw, 78px);
+    line-height:1.05;
+    margin-bottom:25px;
+    font-weight:900;
+}
+
+.hero h1 span{
+    background:linear-gradient(135deg,var(--cyan),var(--neon-green));
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+}
+
+.hero p{
+    color:var(--gray);
+    font-size:18px;
+    line-height:1.7;
+    max-width:650px;
+    margin-bottom:35px;
+}
+
+.hero-buttons{
+    display:flex;
+    gap:15px;
+    flex-wrap:wrap;
+}
+
+.hero-card{
+    background:linear-gradient(145deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01));
+    border:1px solid var(--border-color);
+    border-radius:30px;
+    padding:35px;
+    box-shadow:var(--shadow);
+    backdrop-filter:blur(10px);
+}
+
+.station-visual{
+    height:380px;
+    border-radius:22px;
+    background:linear-gradient(135deg, #0a1b2d, #040910);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+    overflow:hidden;
+    border:1px solid rgba(0,242,254,0.2);
+}
+
+.station-machine{
+    width:180px;
+    height:280px;
+    border-radius:20px;
+    background:linear-gradient(145deg,#122a44,#06101c);
+    box-shadow:0 25px 50px rgba(0,0,0,0.6);
+    position:relative;
+    padding:20px;
+    text-align:center;
+    border:1px solid rgba(0,242,254,0.3);
+}
+
+.lightning{
+    font-size:50px;
+    color:var(--cyan);
+    filter:drop-shadow(0 0 15px var(--cyan));
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); filter: drop-shadow(0 0 10px var(--cyan)); }
+    50% { transform: scale(1.1); filter: drop-shadow(0 0 25px var(--cyan)); }
+    100% { transform: scale(1); filter: drop-shadow(0 0 10px var(--cyan)); }
+}
+
+.machine-title{
+    font-weight:900;
+    color:white;
+    font-size:14px;
+    margin-top:10px;
+    letter-spacing:1px;
+}
+
+.cable{
+    width:6px;
+    height:70px;
+    background:linear-gradient(var(--cyan),var(--purple));
+    margin:15px auto;
+    border-radius:10px;
+    box-shadow:0 0 10px var(--cyan);
+}
+
+.port{
+    width:60px;
+    height:10px;
+    border-radius:20px;
+    background:#1c4259;
+    margin:6px auto;
+    border:1px solid rgba(0,242,254,0.4);
+}
+
+/* STATS */
+.stats{
+    margin-top:-50px;
+    position:relative;
+    z-index:10;
+    padding:0 30px;
+    max-width:1400px;
+    margin-left:auto;
+    margin-right:auto;
+}
+
+.stats-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:20px;
+}
+
+.stat{
+    background:linear-gradient(135deg, rgba(12, 23, 39, 0.9), rgba(6, 14, 25, 0.9));
+    border:1px solid var(--border-color);
+    border-radius:22px;
+    padding:30px;
+    box-shadow:var(--shadow);
+    text-align:center;
+    backdrop-filter:blur(10px);
+}
+
+.stat strong{
+    display:block;
+    font-size:36px;
+    font-weight:900;
+    background:linear-gradient(135deg,var(--cyan),var(--neon-green));
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+}
+
+.stat span{
+    color:var(--gray);
+    font-size:13px;
+    font-weight:600;
+    margin-top:5px;
+    display:block;
+}
+
+/* SECTIONS */
+section{
+    padding:100px 30px;
+}
+
+.container{
+    max-width:1400px;
+    margin:auto;
+}
+
+.section-header{
+    text-align:center;
+    margin-bottom:60px;
+}
+
+.section-header span{
+    color:var(--cyan);
+    font-size:13px;
+    font-weight:800;
+    letter-spacing:3px;
+    text-transform:uppercase;
+    display:block;
+    margin-bottom:10px;
+}
+
+.section-header h2{
+    font-size:clamp(32px, 4.5vw, 50px);
+    margin-bottom:15px;
+    font-weight:900;
+}
+
+.section-header p{
+    color:var(--gray);
+    max-width:700px;
+    margin:auto;
+    line-height:1.7;
+    font-size:16px;
+}
+
+/* FEATURES */
+.features{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:25px;
+}
+
+.feature{
+    background:var(--navy2);
+    border:1px solid var(--border-color);
+    padding:35px;
+    border-radius:24px;
+    box-shadow:var(--shadow);
+    transition:.3s;
+}
+
+.feature:hover{
+    transform:translateY(-8px);
+    border-color:var(--cyan);
+    box-shadow:0 25px 50px rgba(0,242,254,0.25);
+}
+
+.feature-icon{
+    width:65px;
+    height:65px;
+    border-radius:18px;
+    background:rgba(0,242,254,0.1);
+    border:1px solid rgba(0,242,254,0.3);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:28px;
+    margin-bottom:22px;
+}
+
+.feature h3{
+    margin-bottom:12px;
+    font-size:20px;
+}
+
+.feature p{
+    color:var(--gray);
+    line-height:1.6;
+    font-size:14px;
+}
+
+/* IMAGES SECTION */
+.experience{
+    background:linear-gradient(180deg, var(--navy), #071326);
+}
+
+.image-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:30px;
+}
+
+.image-card{
+    background:var(--navy2);
+    border:1px solid var(--border-color);
+    border-radius:28px;
+    overflow:hidden;
+    position:relative;
+    box-shadow:var(--shadow);
+}
+
+.image-label{
+    padding:22px 30px;
+    background:rgba(5, 11, 20, 0.95);
+    font-weight:700;
+    font-size:16px;
+    border-top:1px solid var(--border-color);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+}
+
+/* MAP SECTION */
+.map-section{
+    background:#07101c;
+}
+
+.map-layout{
+    display:grid;
+    grid-template-columns:380px 1fr;
+    gap:25px;
+}
+
+.map-panel{
+    background:var(--navy2);
+    border:1px solid var(--border-color);
+    border-radius:28px;
+    padding:25px;
+    box-shadow:var(--shadow);
+    max-height:700px;
+    overflow:auto;
+}
+
+.map-panel h3{
+    margin-bottom:18px;
+    font-size:20px;
+}
+
+.search-box{
+    width:100%;
+    padding:15px;
+    background:rgba(255,255,255,0.05);
+    border:1px solid var(--border-color);
+    border-radius:14px;
+    color:white;
+    outline:none;
+    margin-bottom:15px;
+    font-size:14px;
+}
+
+.search-box:focus{
+    border-color:var(--cyan);
+    box-shadow:0 0 15px rgba(0,242,254,0.2);
+}
+
+.filter-row{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+}
+
+select{
+    width:100%;
+    padding:14px;
+    background:rgba(12, 23, 39, 0.9);
+    border:1px solid var(--border-color);
+    border-radius:14px;
+    color:white;
+    outline:none;
+    font-size:13px;
+}
+
+select option{
+    background:var(--navy2);
+    color:white;
+}
+
+#map{
+    height:700px;
+    border-radius:28px;
+    overflow:hidden;
+    box-shadow:var(--shadow);
+    border:1px solid var(--border-color);
+    z-index:10;
+}
+
+.station-list{
+    margin-top:18px;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+}
+
+.station-card{
+    background:rgba(255,255,255,0.03);
+    border:1px solid var(--border-color);
+    border-radius:18px;
+    padding:18px;
+    transition:.3s;
+}
+
+.station-card:hover{
+    border-color:var(--cyan);
+    background:rgba(0,242,254,0.04);
+}
+
+.station-card h4{
+    font-size:15px;
+    margin-bottom:6px;
+    color:white;
+}
+
+.station-card p{
+    font-size:12px;
+    color:var(--gray);
+    line-height:1.5;
+}
+
+.station-status{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    margin:12px 0;
+}
+
+.badge{
+    font-size:11px;
+    padding:6px 12px;
+    border-radius:20px;
+    background:rgba(0, 255, 157, 0.12);
+    color:var(--neon-green);
+    font-weight:700;
+    border:1px solid rgba(0, 255, 157, 0.3);
+}
+
+.badge-blue{
+    background:rgba(0, 242, 254, 0.12);
+    color:var(--cyan);
+    border-color:rgba(0, 242, 254, 0.3);
+}
+
+.badge-warning{
+    background:rgba(255, 42, 133, 0.12);
+    color:var(--neon-pink);
+    border-color:rgba(255, 42, 133, 0.3);
+}
+
+.station-actions{
+    display:flex;
+    gap:8px;
+}
+
+.small-btn{
+    padding:9px 12px;
+    border:none;
+    border-radius:10px;
+    font-size:11px;
+    font-weight:700;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.route-btn{
+    background:var(--navy);
+    color:white;
+    border:1px solid var(--border-color);
+}
+
+.route-btn:hover{
+    background:var(--cyan);
+    color:var(--navy);
+}
+
+.rent-btn{
+    background:linear-gradient(135deg,var(--cyan),var(--blue));
+    color:var(--navy);
+}
+
+.rent-btn:hover{
+    transform:scale(1.05);
+}
+
+/* RENTAL SECTION */
+.rental{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:35px;
+}
+
+.rental-card{
+    background:var(--navy2);
+    border:1px solid var(--border-color);
+    border-radius:28px;
+    padding:40px;
+    box-shadow:var(--shadow);
+}
+
+.rental-card h3{
+    margin-bottom:25px;
+    font-size:24px;
+}
+
+.form-group{
+    margin-bottom:20px;
+}
+
+.form-group label{
+    display:block;
+    font-size:13px;
+    font-weight:700;
+    margin-bottom:8px;
+    color:var(--gray);
+}
+
+.form-group input,
+.form-group select{
+    width:100%;
+    padding:16px;
+    background:rgba(255,255,255,0.05);
+    border:1px solid var(--border-color);
+    border-radius:14px;
+    color:white;
+    outline:none;
+    font-size:14px;
+}
+
+.form-group input:focus,
+.form-group select:focus{
+    border-color:var(--cyan);
+    box-shadow:0 0 15px rgba(0,242,254,0.2);
+}
+
+.price-display{
+    background:linear-gradient(135deg, rgba(0,242,254,0.1), rgba(177,116,255,0.1));
+    border:1px solid var(--border-color);
+    border-radius:20px;
+    padding:30px;
+    margin:25px 0;
+    text-align:center;
+}
+
+.price-display small{
+    color:var(--gray);
+    font-size:13px;
+    text-transform:uppercase;
+    letter-spacing:1px;
+}
+
+.price-display strong{
+    display:block;
+    font-size:42px;
+    font-weight:900;
+    background:linear-gradient(135deg,var(--cyan),var(--neon-green));
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    margin-top:8px;
+}
+
+/* PRICES SECTION */
+.prices{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:30px;
+}
+
+.price-card{
+    background:var(--navy2);
+    border:1px solid var(--border-color);
+    border-radius:28px;
+    padding:35px;
+    box-shadow:var(--shadow);
+}
+
+.price-card h3{
+    color:white;
+    margin-bottom:25px;
+    font-size:24px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.price-row{
+    display:flex;
+    justify-content:space-between;
+    padding:18px 0;
+    border-bottom:1px solid rgba(255,255,255,0.06);
+    font-size:15px;
+}
+
+.price-row:last-child{
+    border-bottom:none;
+}
+
+.price-row span{
+    color:var(--gray);
+}
+
+.price-row strong{
+    color:var(--cyan);
+    font-size:18px;
+}
+
+/* TEAM SECTION */
+.team{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:30px;
+}
+
+.team-card{
+    background:var(--navy2);
+    border:1px solid var(--border-color);
+    padding:40px 30px;
+    border-radius:28px;
+    box-shadow:var(--shadow);
+    text-align:center;
+    transition:.3s;
+}
+
+.team-card:hover{
+    transform:translateY(-8px);
+    border-color:var(--cyan);
+}
+
+.team-avatar{
+    width:90px;
+    height:90px;
+    border-radius:50%;
+    margin:auto auto 20px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:linear-gradient(135deg,var(--cyan),var(--purple));
+    color:var(--navy);
+    font-size:32px;
+    font-weight:900;
+    box-shadow:0 0 25px rgba(0,242,254,0.4);
+}
+
+.team-card h3{
+    margin-bottom:8px;
+    font-size:22px;
+}
+
+.team-card p{
+    color:var(--gray);
+    font-size:14px;
+    margin-bottom:15px;
+}
+
+.team-phone{
+    display:inline-block;
+    color:var(--neon-green);
+    font-size:13px;
+    font-weight:700;
+    background:rgba(0,255,157,0.1);
+    padding:6px 14px;
+    border-radius:50px;
+    border:1px solid rgba(0,255,157,0.3);
+    transition:.2s;
+}
+
+.team-phone:hover{
+    background:rgba(0,255,157,0.2);
+    box-shadow:0 0 15px rgba(0,255,157,0.4);
+}
+
+/* CONTACT SECTION */
+.contact{
+    background:linear-gradient(135deg,#050b14,#0c213d);
+}
+
+.contact-grid{
+    display:grid;
+    grid-template-columns:1.2fr 0.8fr;
+    gap:35px;
+}
+
+.contact-info h2{
+    font-size:clamp(35px, 4.5vw, 50px);
+    margin-bottom:20px;
+}
+
+.contact-info p{
+    color:var(--gray);
+    line-height:1.7;
+    font-size:16px;
+}
+
+.contact-links{
+    display:flex;
+    flex-direction:column;
+    gap:15px;
+    margin-top:30px;
+}
+
+.contact-link{
+    background:rgba(255,255,255,0.04);
+    border:1px solid var(--border-color);
+    padding:18px 22px;
+    border-radius:16px;
+    transition:.3s;
+    font-weight:600;
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.contact-link:hover{
+    background:rgba(0,242,254,0.1);
+    border-color:var(--cyan);
+    color:var(--cyan);
+    transform:translateX(5px);
+}
+
+.contact-card{
+    background:var(--navy2);
+    border:1px solid var(--border-color);
+    color:white;
+    border-radius:28px;
+    padding:40px;
+    box-shadow:var(--shadow);
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+}
+
+/* FOOTER */
+footer{
+    background:#020509;
+    color:var(--gray);
+    padding:45px 30px;
+    text-align:center;
+    font-size:13px;
+    border-top:1px solid rgba(255,255,255,0.05);
+}
+
+footer strong{
+    color:white;
+}
+
+/* MODALS */
+.modal{
+    display:none;
+    position:fixed;
+    inset:0;
+    z-index:9999;
+    background:rgba(2, 5, 9, 0.85);
+    backdrop-filter:blur(15px);
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+}
+
+.modal.active{
+    display:flex;
+}
+
+.modal-box{
+    width:100%;
+    max-width:500px;
+    max-height:90vh;
+    overflow:auto;
+    background:var(--navy2);
+    border:1px solid var(--border-color);
+    border-radius:28px;
+    padding:35px;
+    position:relative;
+    box-shadow:0 30px 90px rgba(0,242,254,0.3);
+}
+
+.close{
+    position:absolute;
+    top:20px;
+    right:22px;
+    width:40px;
+    height:40px;
+    border:none;
+    border-radius:50%;
+    background:rgba(255,255,255,0.05);
+    color:white;
+    font-size:22px;
+    cursor:pointer;
+    border:1px solid var(--border-color);
+    transition:.2s;
+}
+
+.close:hover{
+    background:var(--cyan);
+    color:var(--navy);
+}
+
+.modal-box h2{
+    margin-bottom:20px;
+    color:white;
+    font-size:24px;
+}
+
+.tabs{
+    display:flex;
+    gap:6px;
+    background:rgba(0,0,0,0.3);
+    padding:6px;
+    border-radius:16px;
+    margin-bottom:25px;
+    border:1px solid var(--border-color);
+}
+
+.tabs button{
+    flex:1;
+    border:none;
+    background:transparent;
+    padding:12px;
+    border-radius:12px;
+    font-weight:700;
+    color:var(--gray);
+    transition:.3s;
+}
+
+.tabs button.active{
+    background:linear-gradient(135deg,var(--cyan),var(--blue));
+    color:var(--navy);
+    box-shadow:0 5px 15px rgba(0,242,254,0.3);
+}
+
+.message{
+    display:none;
+    padding:14px;
+    border-radius:14px;
+    font-size:13px;
+    line-height:1.5;
+    margin-bottom:18px;
+}
+
+.message.error{
+    display:block;
+    background:rgba(255,42,133,0.15);
+    color:var(--neon-pink);
+    border:1px solid rgba(255,42,133,0.4);
+}
+
+.message.success{
+    display:block;
+    background:rgba(0,255,157,0.15);
+    color:var(--neon-green);
+    border:1px solid rgba(0,255,157,0.4);
+}
+
+.demo-info{
+    background:rgba(255,200,87,0.1);
+    padding:15px;
+    border-radius:14px;
+    font-size:12px;
+    color:#ffdf87;
+    margin-bottom:20px;
+    line-height:1.6;
+    border:1px solid rgba(255,200,87,0.3);
+}
+
+.card-demo{
+    background:rgba(0,0,0,0.2);
+    border:1px solid var(--border-color);
+    border-radius:20px;
+    padding:20px;
+    margin-top:18px;
+}
+
+.card-demo h4{
+    color:white;
+    margin-bottom:15px;
+    font-size:15px;
+}
+
+.card-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+}
+
+.card-grid .full{
+    grid-column:1/-1;
+}
+
+.card-verified{
+    display:none;
+    background:rgba(0,255,157,0.15);
+    color:var(--neon-green);
+    padding:12px;
+    border-radius:12px;
+    font-size:12px;
+    font-weight:700;
+    margin-top:14px;
+    border:1px solid rgba(0,255,157,0.4);
+}
+
+.receipt{
+    background:rgba(0,0,0,0.25);
+    border-radius:18px;
+    padding:22px;
+    border:1px solid var(--border-color);
+}
+
+.receipt-line{
+    display:flex;
+    justify-content:space-between;
+    gap:15px;
+    padding:10px 0;
+    border-bottom:1px solid rgba(255,255,255,0.05);
+    font-size:14px;
+}
+
+.receipt-line:last-child{
+    border-bottom:none;
+}
+
+.receipt-line strong{
+    text-align:right;
+    color:white;
+}
+
+.receipt-total{
+    border-top:1px solid var(--border-color);
+    margin-top:12px;
+    padding-top:15px;
+    font-size:20px;
+    font-weight:900;
+    display:flex;
+    justify-content:space-between;
+    color:var(--neon-green);
+}
+
+/* RESPONSIVE */
+@media(max-width:1000px){
+    nav{display:none;}
+    .hero-content, .rental, .contact-grid, .image-grid, .prices, .map-layout{grid-template-columns:1fr;}
+    .features, .stats-grid{grid-template-columns:1fr 1fr;}
+    .team{grid-template-columns:1fr;}
+}
+
+@media(max-width:600px){
+    .features, .stats-grid{grid-template-columns:1fr;}
+    .hero h1{font-size:40px;}
+    #map{height:500px;}
+    .navbar{padding:0 20px;}
+    .nav-buttons .btn-outline{display:none;}
+    .card-grid{grid-template-columns:1fr;}
+    .card-grid .full{grid-column:auto;}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<div class="navbar">
+<a href="#inicio" class="logo">
+    Power<span>Spot</span>
+    <small>LATAM ENERGÍA INTELIGENTE</small>
+</a>
+
+<nav>
+    <a href="#inicio">Inicio</a>
+    <a href="#funciona">Cómo funciona</a>
+    <a href="#estaciones">Estaciones</a>
+    <a href="#precios">Tarifas</a>
+    <a href="#equipo">Equipo</a>
+    <a href="#contacto">Contacto</a>
+</nav>
+
+<div class="nav-buttons" id="navButtons">
+    <button class="btn btn-outline" onclick="openLogin('login')">Iniciar sesión</button>
+    <button class="btn btn-primary" onclick="scrollToRental()">Rentar</button>
+</div>
+</div>
+</header>
+
+
+<!-- HERO -->
+<section class="hero" id="inicio">
+<div class="hero-content">
+<div>
+<div class="hero-badge">
+    ⚡ RED DE CARGA RÁPIDA EN LATINOAMÉRICA
+</div>
+<h1>
+    Energía donde<br>
+    <span>la necesitas.</span>
+</h1>
+<p>
+    PowerSpot te conecta con estaciones inteligentes de power banks y cargadores en aeropuertos, centros comerciales y terminales en todo LATAM.
+</p>
+<div class="hero-buttons">
+<button class="btn btn-primary" onclick="goToUserLocation()">
+    📍 Encontrar estación cercana
+</button>
+<button class="btn btn-outline" onclick="document.getElementById('estaciones').scrollIntoView()">
+    Explorar mapa LATAM
+</button>
+</div>
+</div>
+
+<div class="hero-card">
+<div class="station-visual">
+<div class="station-machine">
+<div class="lightning">⚡</div>
+<div class="machine-title">POWERSPOT</div>
+<div class="cable"></div>
+<div class="port"></div>
+<div class="port"></div>
+<div class="port"></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+
+<!-- STATS -->
+<section class="stats">
+<div class="container">
+<div class="stats-grid">
+<div class="stat">
+<strong id="totalStations">0</strong>
+<span>Estaciones activas en LATAM</span>
+</div>
+<div class="stat">
+<strong>8</strong>
+<span>Países conectados</span>
+</div>
+<div class="stat">
+<strong>24/7</strong>
+<span>Disponibilidad total</span>
+</div>
+<div class="stat">
+<strong>100%</strong>
+<span>Carga segura</span>
+</div>
+</div>
+</div>
+</section>
+
+
+<!-- FUNCIONA -->
+<section id="funciona">
+<div class="container">
+<div class="section-header">
+<span>PROCESO SIMPLE</span>
+<h2>Cómo funciona PowerSpot</h2>
+<p>Un sistema autónomo diseñado para que nunca te quedes sin batería en tus trayectos por Latinoamérica.</p>
+</div>
+
+<div class="features">
+<div class="feature">
+<div class="feature-icon">📍</div>
+<h3>1. Encuentra</h3>
+<p>Localiza estaciones en el mapa interactivo o activa tu GPS para ver la más cercana a ti.</p>
+</div>
+<div class="feature">
+<div class="feature-icon">⚡</div>
+<h3>2. Renta</h3>
+<p>Elige tu power bank o conéctate en el puerto de carga seleccionando el tiempo ideal.</p>
+</div>
+<div class="feature">
+<div class="feature-icon">🔋</div>
+<h3>3. Carga</h3>
+<p>Utiliza tu dispositivo con total libertad mientras viajas, trabajas o caminas.</p>
+</div>
+<div class="feature">
+<div class="feature-icon">↩️</div>
+<h3>4. Devuelve</h3>
+<p>Libera el equipo en cualquier otra estación PowerSpot de la red en LATAM.</p>
+</div>
+</div>
+</div>
+</section>
+
+
+<!-- IMÁGENES REPRESENTATIVAS -->
+<section class="experience">
+<div class="container">
+<div class="section-header">
+<span>EXPERIENCIA VISUAL</span>
+<h2>Diseño de estaciones en acción</h2>
+<p>Infraestructura moderna instalada en zonas estratégicas de alta afluencia internacional.</p>
+</div>
+<div class="image-grid">
+    <div class="image-card">
+        <img src="powerspot-aeropuerto.png" alt="Estación PowerSpot Aeropuerto" style="width:100%; height:320px; object-fit:cover; display:block;">
+        <div class="image-label">
+            <span>⚡ Estación Terminal 2 AICM</span>
+            <span style="color:#00ff9d">Activa 24/7</span>
+        </div>
+    </div>
+
+    <div class="image-card">
+        <img src="powerspot-terminal.png" alt="Estación PowerSpot Terminal" style="width:100%; height:320px; object-fit:cover; display:block;">
+        <div class="image-label">
+            <span>📍 Hub Central Santiago & Bogotá</span>
+            <span style="color:#00ff9d">Activa 24/7</span>
+        </div>
+    </div>
+</div>
+</div>
+</section>
+
+
+<!-- MAPA -->
+<section class="map-section" id="estaciones">
+<div class="container">
+<div class="section-header">
+<span>MAPA EN TIEMPO REAL</span>
+<h2>Estaciones en toda Latinoamérica</h2>
+<p>Consulta la disponibilidad exacta y visualiza cuánto falta para que se desocupen los puertos de carga.</p>
+</div>
+
+<div class="map-layout">
+<div class="map-panel">
+<h3>Filtros y Búsqueda</h3>
+<input type="text" id="searchStation" class="search-box" placeholder="Buscar ciudad, país o estación..." oninput="filtrarTodoPorEstado()">
+
+<div class="filter-row">
+<select id="stateFilter" onchange="filtrarTodoPorEstado()">
+<option value="">Todos los estados / regiones</option>
+</select>
+
+<select id="availabilityFilter" onchange="filtrarTodoPorEstado()">
+<option value="">Toda disponibilidad</option>
+<option value="available">Con espacio libre</option>
+<option value="pb">Con Power Banks libres</option>
+<option value="chargers">Con cargadores libres</option>
+</select>
+</div>
+
+<button class="btn btn-primary" style="width:100%;margin-top:15px" onclick="goToUserLocation()">
+    📍 Usar mi ubicación actual
+</button>
+
+<div id="nearestBox" style="margin-top:15px"></div>
+<div class="station-list" id="stationList"></div>
+</div>
+
+<div id="map"></div>
+</div>
+</div>
+</section>
+
+
+<!-- RENTA -->
+<section id="rentar">
+<div class="container">
+<div class="section-header">
+<span>MÓDULO DE RENTA</span>
+<h2>Renta tu equipo ahora</h2>
+<p>Selecciona la estación de destino, el tipo de dispositivo y el tiempo requerido.</p>
+</div>
+
+<div class="rental">
+<div class="rental-card">
+<h3>⚡ Configurar Renta</h3>
+
+<div class="form-group">
+<label>Estación PowerSpot</label>
+<select id="rentalStation" onchange="calculatePrice()">
+<option value="">Selecciona una estación</option>
+</select>
+</div>
+
+<div class="form-group">
+<label>Tipo de Equipo</label>
+<select id="equipment" onchange="calculatePrice()">
+<option value="powerbank">Power Bank Portátil</option>
+<option value="charger">Cargador Fijo en Estación</option>
+</select>
+</div>
+
+<div class="form-group">
+<label>Tiempo de Renta</label>
+<select id="rentalTime" onchange="calculatePrice()">
+<option value="30">30 minutos</option>
+<option value="60">1 hora</option>
+<option value="120">2 horas</option>
+<option value="day">Pase Todo el Día (24 hrs)</option>
+</select>
+</div>
+
+<div class="price-display">
+<small>Total estimado</small>
+<strong id="rentalPrice">$15 MXN</strong>
+</div>
+
+<button class="btn btn-primary" style="width:100%" onclick="startPayment()">
+    Continuar con el pago seguro
+</button>
+</div>
+
+<div class="rental-card">
+<h3>Ventajas PowerSpot</h3>
+<div style="display:flex;flex-direction:column;gap:22px">
+<div>
+<strong style="color:var(--cyan)">🔋 Power Banks de Alta Densidad</strong>
+<p style="color:var(--gray);font-size:13px;margin-top:5px">Carga rápida con cables integrados (Lightning, USB-C y Micro-USB).</p>
+</div>
+<div>
+<strong style="color:var(--cyan)">⚡ Puertos Inteligentes de Pared</strong>
+<p style="color:var(--gray);font-size:13px;margin-top:5px">Tecnología de carga segura con protección contra sobrecalentamiento.</p>
+</div>
+<div>
+<strong style="color:var(--cyan)">📍 Devolución Cruzada en LATAM</strong>
+<p style="color:var(--gray);font-size:13px;margin-top:5px">Devuelve el power bank en cualquier otra ciudad o país de nuestra red.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+
+<!-- PRECIOS -->
+<section id="precios">
+<div class="container">
+<div class="section-header">
+<span>TARIFAS CLARAS</span>
+<h2>Precios transparentes sin sorpresas</h2>
+<p>Elige planes accesibles acordes a tus necesidades de movilidad.</p>
+</div>
+
+<div class="prices">
+<div class="price-card">
+<h3>🔋 Power Bank Portátil</h3>
+<div class="price-row"><span>30 minutos</span><strong>$15 MXN</strong></div>
+<div class="price-row"><span>1 hora</span><strong>$25 MXN</strong></div>
+<div class="price-row"><span>2 horas</span><strong>$40 MXN</strong></div>
+<div class="price-row"><span>Todo el día</span><strong>$100 MXN</strong></div>
+</div>
+
+<div class="price-card">
+<h3>🔌 Cargador de Estación</h3>
+<div class="price-row"><span>30 minutos</span><strong>$10 MXN</strong></div>
+<div class="price-row"><span>1 hora</span><strong>$20 MXN</strong></div>
+<div class="price-row"><span>2 horas</span><strong>$35 MXN</strong></div>
+<div class="price-row"><span>Todo el día</span><strong>$80 MXN</strong></div>
+</div>
+</div>
+</div>
+</section>
+
+
+<!-- EQUIPO -->
+<section id="equipo">
+<div class="container">
+<div class="section-header">
+<span>TALENTO Y DESARROLLO</span>
+<h2>Nuestro Equipo</h2>
+<p>Innovadores comprometidos con la conectividad y la tecnología en Latinoamérica.</p>
+</div>
+
+<div class="team">
+<div class="team-card">
+<div class="team-avatar">M</div>
+<h3>Mia Lucero</h3>
+<p>Dirección y Desarrollo del Proyecto</p>
+<a href="tel:6331070975" class="team-phone">📞 633-107-0975</a>
+</div>
+
+<div class="team-card">
+<div class="team-avatar">I</div>
+<h3>Ivanna Garcia</h3>
+<p>Diseño UX/UI y Arquitectura Web</p>
+<a href="tel:6331070975" class="team-phone">📞 Contactar Equipo</a>
+</div>
+
+<div class="team-card">
+<div class="team-avatar">L</div>
+<h3>Luis Carlos Galvez</h3>
+<p>Innovación Tecnológica y Sistemas</p>
+<a href="tel:6331070975" class="team-phone">📞 Contactar Equipo</a>
+</div>
+</div>
+</div>
+</section>
+
+
+<!-- CONTACTO -->
+<section class="contact" id="contacto">
+<div class="container">
+<div class="contact-grid">
+<div class="contact-info">
+<h2>¿Tienes dudas o necesitas soporte?</h2>
+<p>Ponte en contacto directo con nosotros mediante nuestros canales oficiales de atención al cliente y alianzas estratégicas en LATAM.</p>
+
+<div class="contact-links">
+<a class="contact-link" href="https://wa.me/526331070975" target="_blank">
+    📱 WhatsApp Directo: 633-107-0975
+</a>
+<a class="contact-link" href="https://mail.google.com/mail/?view=cm&fs=1&to=powerspotorg@gmail.com" target="_blank">
+    ✉️ Correo Oficial: powerspotorg@gmail.com
+</a>
+<a class="contact-link" href="https://www.instagram.com/powerspotorg/" target="_blank">
+    📸 Instagram: @powerspotorg
+</a>
+</div>
+</div>
+
+<div class="contact-card">
+<h3 style="font-size:28px;margin-bottom:15px">PowerSpot LATAM</h3>
+<p style="color:var(--gray);line-height:1.7;margin-bottom:25px">
+    La red de estaciones de carga más avanzada de Latinoamérica. Energía disponible en cada paso de tu viaje.
+</p>
+<button class="btn btn-primary" style="width:100%" onclick="scrollToRental()">
+    ⚡ Iniciar Renta Ahora
+</button>
+</div>
+</div>
+</div>
+</section>
+
+
+<footer>
+<strong>PowerSpot</strong> · Energía donde la necesitas en todo LATAM.
+<br><br>
+© 2026 PowerSpot · Plataforma Web Demostrativa
+<br>
+Mia Lucero · Ivanna Garcia · Luis Carlos Galvez
+</footer>
+
+
+<!-- MODAL LOGIN / REGISTRO -->
+<div class="modal" id="loginModal">
+<div class="modal-box">
+<button class="close" onclick="closeModal('loginModal')">×</button>
+<h2>Cuenta PowerSpot</h2>
+<div class="tabs">
+<button id="loginTab" class="active" onclick="showLoginTab('login')">Iniciar sesión</button>
+<button id="registerTab" onclick="showLoginTab('register')">Crear cuenta</button>
+</div>
+
+<div id="loginMessage" class="message"></div>
+<div id="registerMessage" class="message"></div>
+
+<!-- LOGIN -->
+<div id="loginForm">
+<div class="form-group">
+<label>Correo electrónico</label>
+<input id="loginEmail" type="email" placeholder="correo@ejemplo.com">
+</div>
+<div class="form-group">
+<label>Contraseña</label>
+<input id="loginPassword" type="password" placeholder="Tu contraseña" onkeydown="if(event.key==='Enter') loginUser()">
+</div>
+<button class="btn btn-primary" style="width:100%" onclick="loginUser()">Iniciar sesión</button>
+</div>
+
+<!-- REGISTRO -->
+<div id="registerForm" style="display:none">
+<div class="form-group">
+<label>Nombre completo</label>
+<input id="registerName" type="text" placeholder="Tu nombre">
+</div>
+<div class="form-group">
+<label>Correo electrónico</label>
+<input id="registerEmail" type="email" placeholder="correo@ejemplo.com">
+</div>
+<div class="form-group">
+<label>Contraseña</label>
+<input id="registerPassword" type="password" placeholder="Mínimo 6 caracteres">
+</div>
+<div class="form-group">
+<label>Confirmar contraseña</label>
+<input id="registerPassword2" type="password" placeholder="Repite tu contraseña" onkeydown="if(event.key==='Enter') registerUser()">
+</div>
+<button class="btn btn-primary" style="width:100%" onclick="registerUser()">Crear cuenta</button>
+</div>
+
+<div class="demo-info" style="margin-top:20px">
+⚠️ <strong>Nota de demostración escolar:</strong> Los datos de acceso se procesan en el servidor conectado a MySQL.
+</div>
+</div>
+</div>
+
+
+<!-- MODAL PAGO -->
+<div class="modal" id="paymentModal">
+<div class="modal-box">
+<button class="close" onclick="closeModal('paymentModal')">×</button>
+<h2>💳 Verificar Pago Seguro</h2>
+<div id="paymentMessage" class="message"></div>
+
+<div class="receipt" style="margin-bottom:20px">
+<div class="receipt-line"><span>Equipo</span><strong id="payEquipment">Power Bank</strong></div>
+<div class="receipt-line"><span>Tiempo</span><strong id="payTime">30 minutos</strong></div>
+<div class="receipt-line"><span>Estación</span><strong id="payStation">-</strong></div>
+<div class="receipt-total">Total a pagar: <span id="payTotal">$15 MXN</span></div>
+</div>
+
+<div class="form-group">
+<label>Método de pago</label>
+<select id="paymentMethod" onchange="changePaymentMethod()">
+<option value="debit">Tarjeta de Débito</option>
+<option value="credit">Tarjeta de Crédito</option>
+<option value="digital">Billetera Digital / PayPal</option>
+<option value="transfer">Transferencia SPEI</option>
+</select>
+</div>
+
+<div class="demo-info">
+⚠️ <strong>DEMO DE PAGO:</strong> No se realizarán cargos reales en ninguna tarjeta.
+</div>
+
+<div id="cardFields" class="card-demo">
+<h4>💳 Datos de Tarjeta de Prueba</h4>
+<div class="card-grid">
+<div class="form-group full">
+<label>Titular de la tarjeta</label>
+<input id="cardName" type="text" placeholder="NOMBRE DE PRUEBA">
+</div>
+<div class="form-group full">
+<label>Número de tarjeta</label>
+<input id="cardNumber" type="text" inputmode="numeric" maxlength="19" placeholder="4242 4242 4242 4242" oninput="formatCardNumber(this)">
+</div>
+<div class="form-group">
+<label>Vencimiento</label>
+<input id="cardExpiry" type="text" inputmode="numeric" maxlength="5" placeholder="MM/AA" oninput="formatExpiry(this)">
+</div>
+<div class="form-group">
+<label>CVV</label>
+<input id="cardCvv" type="password" inputmode="numeric" maxlength="4" placeholder="123">
+</div>
+</div>
+<div class="demo-info" style="margin-top:10px;margin-bottom:0">
+<strong>Usa para probar:</strong><br>
+Tarjeta: 4242 4242 4242 4242 | Fecha: 12/30 | CVV: 123
+</div>
+<div id="cardVerified" class="card-verified">
+✅ Tarjeta de prueba validada correctamente.
+</div>
+</div>
+
+<button class="btn btn-primary" style="width:100%;margin-top:20px" onclick="confirmPayment()">
+    🔒 Confirmar y Generar Recibo
+</button>
+</div>
+</div>
+
+
+<!-- MODAL RECIBO -->
+<div class="modal" id="receiptModal">
+<div class="modal-box">
+<button class="close" onclick="closeModal('receiptModal')">×</button>
+<h2>✅ Renta Confirmada con Éxito</h2>
+
+<div class="receipt">
+<div class="receipt-line"><span>PowerSpot</span><strong>RECIBO OFICIAL</strong></div>
+<div class="receipt-line"><span>Cliente</span><strong id="receiptCustomer">-</strong></div>
+<div class="receipt-line"><span>Equipo</span><strong id="receiptEquipment">-</strong></div>
+<div class="receipt-line"><span>Tiempo</span><strong id="receiptTime">-</strong></div>
+<div class="receipt-line"><span>Estación</span><strong id="receiptStation">-</strong></div>
+<div class="receipt-line"><span>Método</span><strong id="receiptMethod">-</strong></div>
+<div class="receipt-line"><span>Folio</span><strong id="receiptFolio">-</strong></div>
+<div class="receipt-total">Total Pagado: <span id="receiptTotal">$0 MXN</span></div>
+</div>
+
+<div style="margin-top:20px">
+<div class="form-group">
+<label>Enviar copia del recibo a correo</label>
+<input id="receiptEmail" type="email" placeholder="correo@ejemplo.com">
+</div>
+
+<div id="receiptMessage" class="message" style="margin-top:10px"></div>
+
+<button id="sendReceiptButton" class="btn btn-primary" style="width:100%;margin-bottom:12px" onclick="acceptReceipt()">
+    ✉️ Enviar / Reenviar Recibo por Correo
+</button>
+<button class="btn btn-outline" style="width:100%" onclick="closeModal('receiptModal')">
+    Cerrar y Continuar
+</button>
+</div>
+</div>
+</div>
+
+
+<!-- LIBRERÍAS Y SCRIPT -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+/* ==========================================================
+   CONFIGURACIÓN DEL TÚNEL / BACKEND
+   Reemplaza la URL por tu túnel HTTPS (ej. "https://xxxx.ngrok-free.app/powerspot")
+   o déjala como "" si abres index.html desde el mismo servidor PHP/Node.
+========================================================== */
+const API_BASE_URL = "https://yodel-unvisited-size.ngrok-free.dev";
+
+function buildApiUrl(endpoint) {
+    const cleanBase = API_BASE_URL.replace(/\/+$/, "");
+    const cleanPath = endpoint.replace(/^\/+/, "");
+    return cleanBase ? `${cleanBase}/${cleanPath}` : cleanPath;
+}
+
+/* ==========================================================
+   ESTACIONES POWERSPOT CON UBICACIONES REALES Y SEPARADAS EN MÉXICO
+========================================================== */
+let stations = [
+    {
+        id: "CDMX-T2-AICM",
+        name: "PowerSpot Terminal 2 AICM",
+        state: "Ciudad de México",
+        city: "Ciudad de México",
+        address: "Av. Capitán Carlos León s/n, Peñón de los Baños, Venustiano Carranza, 15620 CDMX",
+        lat: 19.4241,
+        lng: -99.0798,
+        powerbanks: 25,
+        busyPowerbanks: 8,
+        chargers: 20,
+        busyChargers: 5,
+        minutes: 8,
+        mapsUrl: "https://www.google.com/maps/dir/?api=1&destination=" + encodeURIComponent("Av. Capitán Carlos León s/n, Peñón de los Baños, Venustiano Carranza, 15620 CDMX") + "&travelmode=driving"
+    },
+    {
+        id: "SON-AP-1",
+        name: "PowerSpot Agua Prieta Centro",
+        state: "Sonora",
+        city: "Agua Prieta",
+        address: "Avenida 6 y Calle 4, Centro, Agua Prieta, Sonora",
+        lat: 31.3195,
+        lng: -109.5492,
+        powerbanks: 15, busyPowerbanks: 4, chargers: 10, busyChargers: 2, minutes: 12
+    },
+    {
+        id: "SON-AP-2",
+        name: "PowerSpot Agua Prieta Garita",
+        state: "Sonora",
+        city: "Agua Prieta",
+        address: "Calle 1 y Bulevar H. 4 de Marzo, Garita Internacional, Agua Prieta",
+        lat: 31.3321,
+        lng: -109.5435,
+        powerbanks: 18, busyPowerbanks: 6, chargers: 12, busyChargers: 3, minutes: 15
+    },
+    {
+        id: "SON-HMO-1",
+        name: "PowerSpot Hermosillo Centro",
+        state: "Sonora",
+        city: "Hermosillo",
+        address: "Blvd. Luis Encinas J. y Reforma, Centro, Hermosillo, Sonora",
+        lat: 29.0892,
+        lng: -110.9613,
+        powerbanks: 20, busyPowerbanks: 5, chargers: 15, busyChargers: 4, minutes: 10
+    },
+    {
+        id: "SON-HMO-2",
+        name: "PowerSpot Galerías Hermosillo",
+        state: "Sonora",
+        city: "Hermosillo",
+        address: "Blvd. García Morales y Blvd. Quiroga, El Llano, Hermosillo",
+        lat: 29.0821,
+        lng: -111.0354,
+        powerbanks: 22, busyPowerbanks: 7, chargers: 14, busyChargers: 2, minutes: 20
+    },
+    {
+        id: "SON-NOG-1",
+        name: "PowerSpot Nogales Centro",
+        state: "Sonora",
+        city: "Nogales",
+        address: "Av. Adolfo López Mateos, Centro, Heroica Nogales, Sonora",
+        lat: 31.3162,
+        lng: -110.9431,
+        powerbanks: 16, busyPowerbanks: 3, chargers: 10, busyChargers: 1, minutes: 8
+    },
+    {
+        id: "SON-OBR-1",
+        name: "PowerSpot Ciudad Obregón",
+        state: "Sonora",
+        city: "Ciudad Obregón",
+        address: "Miguel Alemán y Nainari, Centro, Cd Obregón, Sonora",
+        lat: 27.4828,
+        lng: -109.9304,
+        powerbanks: 15, busyPowerbanks: 5, chargers: 12, busyChargers: 3, minutes: 18
+    },
+    {
+        id: "SIN-CUL-1",
+        name: "PowerSpot Culiacán Centro",
+        state: "Sinaloa",
+        city: "Culiacán",
+        address: "Ángel Flores y Rosales, Centro, Culiacán Rosales, Sinaloa",
+        lat: 24.8091,
+        lng: -107.3942,
+        powerbanks: 20, busyPowerbanks: 6, chargers: 15, busyChargers: 4, minutes: 14
+    },
+    {
+        id: "SIN-CUL-2",
+        name: "PowerSpot Tres Ríos Culiacán",
+        state: "Sinaloa",
+        city: "Culiacán",
+        address: "Blvd. Insurgentes, Desarrollo Urbano Tres Ríos, Culiacán",
+        lat: 24.8234,
+        lng: -107.4012,
+        powerbanks: 24, busyPowerbanks: 9, chargers: 18, busyChargers: 6, minutes: 22
+    },
+    {
+        id: "SIN-MAZ-1",
+        name: "PowerSpot Mazatlán Malecón",
+        state: "Sinaloa",
+        city: "Mazatlán",
+        address: "Av. del Mar, Palos Prietos, Mazatlán, Sinaloa",
+        lat: 23.2245,
+        lng: -106.4182,
+        powerbanks: 18, busyPowerbanks: 4, chargers: 12, busyChargers: 2, minutes: 9
+    },
+    {
+        id: "SIN-MOC-1",
+        name: "PowerSpot Los Mochis Centro",
+        state: "Sinaloa",
+        city: "Los Mochis",
+        address: "Álvaro Obregón y Hidalgo, Centro, Los Mochis, Sinaloa",
+        lat: 25.7923,
+        lng: -108.9912,
+        powerbanks: 14, busyPowerbanks: 3, chargers: 10, busyChargers: 2, minutes: 11
+    },
+    {
+        id: "BC-TIJ-1",
+        name: "PowerSpot Tijuana Río",
+        state: "Baja California",
+        city: "Tijuana",
+        address: "Paseo de los Héroes, Zona Urbana Río Tijuana, B.C.",
+        lat: 32.5276,
+        lng: -117.0142,
+        powerbanks: 25, busyPowerbanks: 8, chargers: 20, busyChargers: 5, minutes: 16
+    },
+    {
+        id: "BC-MEX-1",
+        name: "PowerSpot Mexicali Centro",
+        state: "Baja California",
+        city: "Mexicali",
+        address: "Av. Benito Juárez, Zona Centro, Mexicali, B.C.",
+        lat: 32.6631,
+        lng: -115.4673,
+        powerbanks: 16, busyPowerbanks: 4, chargers: 12, busyChargers: 3, minutes: 13
+    },
+    {
+        id: "BC-ENS-1",
+        name: "PowerSpot Ensenada Malecón",
+        state: "Baja California",
+        city: "Ensenada",
+        address: "Blvd. Costero, Zona Centro, Ensenada, B.C.",
+        lat: 31.8667,
+        lng: -116.6166,
+        powerbanks: 15, busyPowerbanks: 5, chargers: 10, busyChargers: 2, minutes: 19
+    },
+    {
+        id: "NL-MTY-1",
+        name: "PowerSpot Monterrey Centro",
+        state: "Nuevo León",
+        city: "Monterrey",
+        address: "Macroplaza, Zaragoza y Zuazua, Centro, Monterrey, N.L.",
+        lat: 25.6691,
+        lng: -100.3101,
+        powerbanks: 28, busyPowerbanks: 10, chargers: 22, busyChargers: 7, minutes: 11
+    },
+    {
+        id: "NL-SPGG-1",
+        name: "PowerSpot San Pedro Garza García",
+        state: "Nuevo León",
+        city: "San Pedro Garza García",
+        address: "Av. San Pedro, Del Valle, San Pedro Garza García, N.L.",
+        lat: 25.6578,
+        lng: -100.4021,
+        powerbanks: 22, busyPowerbanks: 6, chargers: 18, busyChargers: 3, minutes: 7
+    },
+    {
+        id: "JAL-GDL-1",
+        name: "PowerSpot Guadalajara Centro",
+        state: "Jalisco",
+        city: "Guadalajara",
+        address: "Paseo Alcalde y Av. Juárez, Zona Centro, Guadalajara, Jal.",
+        lat: 20.6767,
+        lng: -103.3475,
+        powerbanks: 30, busyPowerbanks: 12, chargers: 25, busyChargers: 8, minutes: 14
+    },
+    {
+        id: "JAL-ZAP-1",
+        name: "PowerSpot Zapopan Andares",
+        state: "Jalisco",
+        city: "Zapopan",
+        address: "Blvd. Puerta de Hierro, Fracc. Puerta de Hierro, Zapopan",
+        lat: 20.7101,
+        lng: -103.4142,
+        powerbanks: 20, busyPowerbanks: 5, chargers: 16, busyChargers: 4, minutes: 10
+    },
+    {
+        id: "CHIH-1",
+        name: "PowerSpot Chihuahua Centro",
+        state: "Chihuahua",
+        city: "Chihuahua",
+        address: "Calle Libertad y Av. Independencia, Centro, Chihuahua",
+        lat: 28.6353,
+        lng: -106.0889,
+        powerbanks: 18, busyPowerbanks: 6, chargers: 14, busyChargers: 3, minutes: 12
+    },
+    {
+        id: "CHIH-JRZ-1",
+        name: "PowerSpot Ciudad Juárez Centro",
+        state: "Chihuahua",
+        city: "Ciudad Juárez",
+        address: "Av. 16 de Septiembre, Zona Centro, Ciudad Juárez, Chih.",
+        lat: 31.7381,
+        lng: -106.4851,
+        powerbanks: 20, busyPowerbanks: 7, chargers: 15, busyChargers: 4, minutes: 16
+    },
+    {
+        id: "COAH-TOR-1",
+        name: "PowerSpot Torreón Centro",
+        state: "Coahuila",
+        city: "Torreón",
+        address: "Av. Juárez y Calle Morelos, Centro, Torreón, Coah.",
+        lat: 25.5428,
+        lng: -103.4068,
+        powerbanks: 16, busyPowerbanks: 4, chargers: 12, busyChargers: 2, minutes: 9
+    },
+    {
+        id: "PUE-1",
+        name: "PowerSpot Puebla Centro Histórico",
+        state: "Puebla",
+        city: "Puebla",
+        address: "Av. 5 Oriente, Centro Histórico, Puebla, Pue.",
+        lat: 19.0433,
+        lng: -98.1980,
+        powerbanks: 22, busyPowerbanks: 8, chargers: 18, busyChargers: 5, minutes: 15
+    },
+    {
+        id: "QRO-1",
+        name: "PowerSpot Querétaro Centro",
+        state: "Querétaro",
+        city: "Santiago de Querétaro",
+        address: "Andador 5 de Mayo, Centro, Santiago de Querétaro, Qro.",
+        lat: 20.5881,
+        lng: -100.3881,
+        powerbanks: 19, busyPowerbanks: 5, chargers: 15, busyChargers: 3, minutes: 11
+    },
+    {
+        id: "YUC-MER-1",
+        name: "PowerSpot Mérida Centro",
+        state: "Yucatán",
+        city: "Mérida",
+        address: "Calle 60 por 61, Centro, Mérida, Yucatán",
+        lat: 20.9674,
+        lng: -89.5926,
+        powerbanks: 18, busyPowerbanks: 5, chargers: 14, busyChargers: 2, minutes: 13
+    },
+    {
+        id: "QROO-CUN-1",
+        name: "PowerSpot Cancún Centro",
+        state: "Quintana Roo",
+        city: "Cancún",
+        address: "Av. Tulum, Mz. 5, Centro, Cancún, Q. Roo",
+        lat: 21.1619,
+        lng: -86.8515,
+        powerbanks: 25, busyPowerbanks: 9, chargers: 20, busyChargers: 6, minutes: 18
+    }
+];
+
+let stationMarkers = {};
+let userMarker = null;
+let userCoords = null;
+
+/* ==========================================================
+   MAPA POWERSPOT - OPENSTREETMAP SIN API KEY
+========================================================== */
+const map = L.map("map", {
+    zoomControl: true,
+    scrollWheelZoom: false
+}).setView([19.4326, -99.1332], 11);
+
+L.tileLayer("https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png", {
+    maxZoom: 20,
+    attribution: '&copy; OpenStreetMap France | &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+}).addTo(map);
+
+function createStationIcon() {
+    return L.divIcon({
+        className: "powerspot-marker",
+        html: `
+        <div style="
+            width:38px;
+            height:38px;
+            background:linear-gradient(135deg,#00f2fe,#00ff9d);
+            border:3px solid #050b14;
+            border-radius:50% 50% 50% 0;
+            transform:rotate(-45deg);
+            box-shadow:0 0 15px rgba(0,242,254,0.7);
+            display:flex;
+            align-items:center;
+            justify-content:center;
+        ">
+            <span style="
+                transform:rotate(45deg);
+                color:#050b14;
+                font-size:18px;
+                font-weight:900;
+            ">⚡</span>
+        </div>`,
+        iconSize: [38,38],
+        iconAnchor: [19,38],
+        popupAnchor: [0,-38]
+    });
+}
+
+const stationIcon = createStationIcon();
+
+function limpiarTodosLosPinesDelMapa() {
+    map.eachLayer(function(layer) {
+        if (layer instanceof L.Marker) {
+            if (userMarker && layer === userMarker) return;
+            map.removeLayer(layer);
+        }
+    });
+    stationMarkers = {};
+}
+
+function mostrarSoloPinesFiltrados(listaFiltrada) {
+    limpiarTodosLosPinesDelMapa();
+
+    listaFiltrada.forEach(station => {
+        if (!Number.isFinite(Number(station.lat)) || !Number.isFinite(Number(station.lng))) return;
+
+        const marker = L.marker([Number(station.lat), Number(station.lng)], {
+            icon: stationIcon
+        }).addTo(map);
+
+        marker.bindPopup(`
+            <div style="min-width:230px;color:#050b14;font-family:Montserrat,sans-serif;">
+                <strong style="font-size:15px;">⚡ ${station.name}</strong>
+                <p style="font-size:12px;margin:6px 0;">${station.city}, ${station.state}</p>
+                <p style="font-size:11px;">📍 ${station.address}</p>
+                <p style="font-size:11px;">🔋 Power Banks libres: <strong>${station.powerbanks - station.busyPowerbanks}</strong></p>
+                <p style="font-size:11px;">🔌 Cargadores libres: <strong>${station.chargers - station.busyChargers}</strong></p>
+                <p style="font-size:11px;color:#d92550;">⏱️ Desocupa en: <strong>${station.minutes} min</strong></p>
+                <button onclick="goToStation('${station.id}')" style="width:100%;padding:9px;border:0;border-radius:8px;background:#050b14;color:#00ff9d;font-weight:bold;margin-top:8px;cursor:pointer;">
+                    🗺️ Cómo llegar (Google Maps)
+                </button>
+            </div>
+        `);
+
+        stationMarkers[station.id] = marker;
+    });
+
+    if (listaFiltrada.length > 0) {
+        const markersArray = Object.values(stationMarkers);
+        const grupo = L.featureGroup(markersArray);
+        map.fitBounds(grupo.getBounds().pad(0.35), { maxZoom: 12 });
+    }
+}
+
+/* ==========================================================
+   LISTA Y FILTROS
+========================================================== */
+function populateStateFilter() {
+    const select = document.getElementById("stateFilter");
+    if (!select) return;
+    select.innerHTML = '<option value="">Todos los estados / regiones</option>';
+    const uniqueStates = [...new Set(stations.map(s => s.state))];
+    uniqueStates.forEach(state => {
+        const option = document.createElement("option");
+        option.value = state;
+        option.textContent = state;
+        select.appendChild(option);
+    });
+}
+
+function populateRentalStations() {
+    const select = document.getElementById("rentalStation");
+    if (!select) return;
+    select.innerHTML = '<option value="">Selecciona una estación</option>';
+    stations.forEach(station => {
+        const option = document.createElement("option");
+        option.value = station.id;
+        option.textContent = `${station.name} — ${station.city}, ${station.state}`;
+        select.appendChild(option);
+    });
+}
+
+function renderStations(list = stations) {
+    const container = document.getElementById("stationList");
+    if (!container) return;
+    container.innerHTML = "";
+
+    list.slice(0, 50).forEach(station => {
+        const availablePB = station.powerbanks - station.busyPowerbanks;
+        const availableCh = station.chargers - station.busyChargers;
+        const busy = availablePB <= 1 && availableCh <= 1;
+
+        const card = document.createElement("div");
+        card.className = "station-card";
+        card.innerHTML = `
+            <h4>⚡ ${station.name}</h4>
+            <p>${station.city}, ${station.state}</p>
+            <p>📍 ${station.address}</p>
+            <div class="station-status">
+                <span class="badge badge-blue">🔋 ${availablePB} PB libres</span>
+                <span class="badge">🔌 ${availableCh} cargadores</span>
+                <span class="badge badge-warning">⏱️ Desocupa en ${station.minutes} min</span>
+                ${busy ? `<span class="badge" style="background:rgba(255,42,133,0.15);color:var(--neon-pink)">⚠️ Alta demanda</span>` : ""}
+            </div>
+            <div class="station-actions">
+                <button class="small-btn route-btn" onclick="goToStation('${station.id}')">🗺️ Cómo llegar</button>
+                <button class="small-btn rent-btn" onclick="selectStationForRent('${station.id}')">Rentar aquí</button>
+            </div>
+        `;
+        container.appendChild(card);
+    });
+
+    if (list.length === 0) {
+        container.innerHTML = `<div style="padding:20px;text-align:center;color:var(--gray);font-size:13px;">No se encontraron estaciones con esos filtros.</div>`;
+    }
+}
+
+function filtrarTodoPorEstado() {
+    const searchInput = document.getElementById("searchStation");
+    const stateSelect = document.getElementById("stateFilter");
+    const availSelect = document.getElementById("availabilityFilter");
+
+    const query = searchInput ? searchInput.value.toLowerCase().trim() : "";
+    const selectedState = stateSelect ? stateSelect.value : "";
+    const availability = availSelect ? availSelect.value : "";
+
+    const filtradas = stations.filter(station => {
+        const coincideEstado = !selectedState || station.state === selectedState;
+        const coincideTexto = !query ||
+            station.name.toLowerCase().includes(query) ||
+            station.city.toLowerCase().includes(query) ||
+            station.state.toLowerCase().includes(query);
+
+        const availablePB = station.powerbanks - station.busyPowerbanks;
+        const availableCh = station.chargers - station.busyChargers;
+
+        let coincideDisp = true;
+        if (availability === "available") coincideDisp = (availablePB > 0 || availableCh > 0);
+        else if (availability === "pb") coincideDisp = availablePB > 0;
+        else if (availability === "chargers") coincideDisp = availableCh > 0;
+
+        return coincideEstado && coincideTexto && coincideDisp;
+    });
+
+    renderStations(filtradas);
+    mostrarSoloPinesFiltrados(filtradas);
+}
+
+/* ==========================================================
+   GEOLOCALIZACIÓN Y CÁLCULO DE RUTA
+========================================================== */
+function goToStation(id) {
+    const station = stations.find(s => s.id === id);
+    if (!station) return;
+    const url = station.mapsUrl || `https://www.google.com/maps/dir/?api=1&destination=${station.lat},${station.lng}&travelmode=driving`;
+    window.open(url, "_blank");
+}
+
+function goToUserLocation() {
+    if (!navigator.geolocation) {
+        alert("Tu navegador no soporta geolocalización.");
+        return;
+    }
+
+    navigator.geolocation.getCurrentPosition(position => {
+        userCoords = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+        };
+
+        if (userMarker) map.removeLayer(userMarker);
+
+        const userIcon = L.divIcon({
+            className: "user-location-marker",
+            html: `<div style="width:24px;height:24px;border-radius:50%;background:#ff2a85;border:4px solid white;box-shadow:0 0 20px #ff2a85;"></div>`,
+            iconSize: [24,24],
+            iconAnchor: [12,12]
+        });
+
+        userMarker = L.marker([userCoords.lat, userCoords.lng], { icon: userIcon }).addTo(map).bindPopup("📍 Tu Ubicación Actual").openPopup();
+        map.setView([userCoords.lat, userCoords.lng], 10);
+
+        const nearest = findNearestStation(userCoords.lat, userCoords.lng);
+        if (nearest) {
+            const distance = haversine(userCoords.lat, userCoords.lng, nearest.lat, nearest.lng);
+            document.getElementById("nearestBox").innerHTML = `
+                <div style="background:rgba(0,255,157,0.1);border:1px solid rgba(0,255,157,0.3);border-radius:14px;padding:14px;font-size:12px;">
+                    <strong style="color:var(--neon-green)">📍 Estación más cercana a ti:</strong><br>
+                    ${nearest.name} (${nearest.city}, ${nearest.state})<br>
+                    Distancia aproximada: <strong>${distance.toFixed(1)} km</strong><br>
+                    <button class="small-btn route-btn" style="margin-top:8px;background:var(--navy);color:white;" onclick="goToStation('${nearest.id}')">Cómo llegar</button>
+                </div>
+            `;
+        }
+    }, () => {
+        alert("No se pudo obtener tu ubicación actual. Revisa los permisos de tu navegador.");
+    }, { enableHighAccuracy: true, timeout: 10000 });
+}
+
+function haversine(lat1, lon1, lat2, lon2) {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat/2)**2 + Math.cos(lat1 * Math.PI/180) * Math.cos(lat2 * Math.PI/180) * Math.sin(dLon/2)**2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+function findNearestStation(lat, lng) {
+    let nearest = null;
+    let smallest = Infinity;
+    stations.forEach(station => {
+        const dist = haversine(lat, lng, station.lat, station.lng);
+        if (dist < smallest) {
+            smallest = dist;
+            nearest = station;
+        }
+    });
+    return nearest;
+}
+
+/* ==========================================================
+   RENTAS Y PRECIOS
+========================================================== */
+const prices = {
+    powerbank: { "30": 15, "60": 25, "120": 40, "day": 100 },
+    charger: { "30": 10, "60": 20, "120": 35, "day": 80 }
+};
+
+function calculatePrice() {
+    const eq = document.getElementById("equipment").value;
+    const time = document.getElementById("rentalTime").value;
+    const price = prices[eq][time];
+    document.getElementById("rentalPrice").textContent = `$${price} MXN`;
+}
+
+function selectStationForRent(id) {
+    document.getElementById("rentalStation").value = id;
+    scrollToRental();
+    calculatePrice();
+}
+
+function scrollToRental() {
+    document.getElementById("rentar").scrollIntoView({ behavior: "smooth" });
+}
+
+/* ==========================================================
+   SISTEMA DE USUARIOS Y SESIÓN (API + LOCALSTORAGE)
+========================================================== */
+let currentUser = null;
+let lastReceipt = null;
+
+function openLogin(tab = "login") {
+    clearMessages();
+    showLoginTab(tab);
+    openModal("loginModal");
+}
+
+function showLoginTab(type) {
+    const login = document.getElementById("loginForm");
+    const reg = document.getElementById("registerForm");
+    const lTab = document.getElementById("loginTab");
+    const rTab = document.getElementById("registerTab");
+    clearMessages();
+
+    if (type === "login") {
+        login.style.display = "block";
+        reg.style.display = "none";
+        lTab.classList.add("active");
+        rTab.classList.remove("active");
+    } else {
+        login.style.display = "none";
+        reg.style.display = "block";
+        lTab.classList.remove("active");
+        rTab.classList.add("active");
+    }
+}
+
+async function registerUser() {
+    const name = document.getElementById("registerName").value.trim();
+    const email = document.getElementById("registerEmail").value.trim().toLowerCase();
+    const pass = document.getElementById("registerPassword").value;
+    const pass2 = document.getElementById("registerPassword2").value;
+
+    if (!name || !email || !pass || !pass2) { showMessage("registerMessage", "Completa todos los campos.", "error"); return; }
+    if (pass.length < 6) { showMessage("registerMessage", "La contraseña debe tener al menos 6 caracteres.", "error"); return; }
+    if (pass !== pass2) { showMessage("registerMessage", "Las contraseñas no coinciden.", "error"); return; }
+
+    const url = buildApiUrl("registro.php");
+
+    try {
+        const respuesta = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ nombre: name, email: email, password: pass })
+        });
+
+        const rawText = await respuesta.text();
+        let resultado;
+        try {
+            resultado = JSON.parse(rawText);
+        } catch {
+            throw new Error(`Respuesta no-JSON (${respuesta.status}) desde ${url}`);
+        }
+
+        if (resultado.success) {
+            showMessage("registerMessage", "✅ " + resultado.message, "success");
+            setTimeout(() => { closeModal("loginModal"); }, 1000);
+        } else {
+            showMessage("registerMessage", resultado.message, "error");
+        }
+    } catch (error) {
+        console.error("Error en registro:", error);
+        showMessage("registerMessage", "No se pudo conectar con el servidor (" + url + "). Revisa que el túnel esté activo y apunte a tu backend.", "error");
+    }
+}
+
+async function loginUser() {
+    const email = document.getElementById("loginEmail").value.trim().toLowerCase();
+    const pass = document.getElementById("loginPassword").value;
+
+    if (!email || !pass) { showMessage("loginMessage", "Escribe tu correo y contraseña.", "error"); return; }
+
+    const url = buildApiUrl("login.php");
+
+    try {
+        const respuesta = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: email, password: pass })
+        });
+
+        const rawText = await respuesta.text();
+        let resultado;
+        try {
+            resultado = JSON.parse(rawText);
+        } catch {
+            throw new Error(`Respuesta no-JSON (${respuesta.status}) desde ${url}`);
+        }
+
+        if (resultado.success) {
+            currentUser = resultado.user;
+            localStorage.setItem("powerspotCurrentUser", JSON.stringify(currentUser));
+            updateHeader();
+
+            showMessage("loginMessage", `✅ ${resultado.message}`, "success");
+            setTimeout(() => { closeModal("loginModal"); }, 800);
+        } else {
+            showMessage("loginMessage", resultado.message, "error");
+        }
+    } catch (error) {
+        console.error("Error en login:", error);
+        showMessage("loginMessage", "No se pudo conectar con el servidor (" + url + "). Revisa que el túnel esté activo y apunte a tu backend.", "error");
+    }
+}
+
+function logoutUser() {
+    currentUser = null;
+    localStorage.removeItem("powerspotCurrentUser");
+    updateHeader();
+    alert("Has cerrado sesión correctamente.");
+}
+
+function updateHeader() {
+    const navButtons = document.getElementById("navButtons");
+    if (currentUser) {
+        const userName = currentUser.name || currentUser.nombre;
+        navButtons.innerHTML = `
+            <button class="btn btn-outline" onclick="showUserMenu()">👤 ${userName}</button>
+            <button class="btn btn-primary" onclick="scrollToRental()">Rentar</button>
+        `;
+    } else {
+        navButtons.innerHTML = `
+            <button class="btn btn-outline" onclick="openLogin('login')">Iniciar sesión</button>
+            <button class="btn btn-primary" onclick="scrollToRental()">Rentar</button>
+        `;
+    }
+}
+
+function showUserMenu() {
+    const userName = currentUser.name || currentUser.nombre;
+    if (confirm(`Sesión activa como ${userName}.\n\n¿Deseas cerrar sesión?`)) {
+        logoutUser();
+    }
+}
+
+function restoreSession() {
+    currentUser = JSON.parse(localStorage.getItem("powerspotCurrentUser") || "null");
+    updateHeader();
+}
+
+function showMessage(id, text, type) {
+    const box = document.getElementById(id);
+    if (box) {
+        box.className = "message " + type;
+        box.textContent = text;
+    }
+}
+
+function clearMessages() {
+    ["loginMessage", "registerMessage", "paymentMessage", "receiptMessage"].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) { el.className = "message"; el.textContent = ""; }
+    });
+}
+
+/* ==========================================================
+   PAGO Y TARJETA DE PRUEBA
+========================================================== */
+function startPayment() {
+    if (!currentUser) {
+        openLogin("login");
+        showMessage("loginMessage", "Inicia sesión o crea una cuenta para poder rentar.", "error");
+        return;
+    }
+
+    const stationId = document.getElementById("rentalStation").value;
+    const eq = document.getElementById("equipment").value;
+    const time = document.getElementById("rentalTime").value;
+
+    if (!stationId) { alert("Selecciona una estación de PowerSpot."); return; }
+
+    const station = stations.find(s => s.id === stationId);
+    const price = prices[eq][time];
+
+    document.getElementById("payEquipment").textContent = eq === "powerbank" ? "Power Bank Portátil" : "Cargador Fijo";
+    document.getElementById("payTime").textContent = formatTime(time);
+    document.getElementById("payStation").textContent = station.name;
+    document.getElementById("payTotal").textContent = `$${price} MXN`;
+
+    resetCardFields();
+    openModal("paymentModal");
+}
+
+function formatTime(t) {
+    if (t === "30") return "30 minutos";
+    if (t === "60") return "1 hora";
+    if (t === "120") return "2 horas";
+    return "Pase Todo el Día";
+}
+
+function changePaymentMethod() {
+    const method = document.getElementById("paymentMethod").value;
+    const cardFields = document.getElementById("cardFields");
+    cardFields.style.display = (method === "debit" || method === "credit") ? "block" : "none";
+}
+
+function formatCardNumber(input) {
+    let val = input.value.replace(/\D/g, "").slice(0, 16);
+    let groups = [];
+    for (let i = 0; i < val.length; i += 4) groups.push(val.substring(i, i + 4));
+    input.value = groups.join(" ");
+}
+
+function formatExpiry(input) {
+    let val = input.value.replace(/\D/g, "").slice(0, 4);
+    if (val.length >= 3) val = val.substring(0, 2) + "/" + val.substring(2);
+    input.value = val;
+}
+
+function validateCard() {
+    const num = document.getElementById("cardNumber").value.replace(/\s/g, "");
+    const cvv = document.getElementById("cardCvv").value.trim();
+    if (num !== "4242424242424242") return { valid: false, message: "Usa la tarjeta de prueba: 4242 4242 4242 4242" };
+    if (cvv !== "123") return { valid: false, message: "CVV incorrecto. Usa el CVV de prueba: 123" };
+    return { valid: true };
+}
+
+function confirmPayment() {
+    const method = document.getElementById("paymentMethod").value;
+    if (method === "debit" || method === "credit") {
+        const val = validateCard();
+        if (!val.valid) {
+            const msg = document.getElementById("paymentMessage");
+            msg.className = "message error";
+            msg.textContent = "⚠️ " + val.message;
+            return;
+        }
+        document.getElementById("cardVerified").style.display = "block";
+    }
+
+    const stationId = document.getElementById("rentalStation").value;
+    const station = stations.find(s => s.id === stationId);
+    const eq = document.getElementById("equipment").value;
+    const time = document.getElementById("rentalTime").value;
+    const price = prices[eq][time];
+
+    const folio = "PS-LATAM-" + Math.floor(100000 + Math.random() * 900000);
+
+    lastReceipt = {
+        customer: currentUser.nombre || currentUser.name,
+        email: currentUser.email,
+        equipment: eq === "powerbank" ? "Power Bank Portátil" : "Cargador Fijo",
+        time: formatTime(time),
+        station: station.name,
+        method: method === "debit" ? "Tarjeta Débito" : method === "credit" ? "Tarjeta Crédito" : "Pago Digital",
+        total: price,
+        folio: folio
+    };
+
+    closeModal("paymentModal");
+
+    document.getElementById("receiptCustomer").textContent = lastReceipt.customer;
+    document.getElementById("receiptEquipment").textContent = lastReceipt.equipment;
+    document.getElementById("receiptTime").textContent = lastReceipt.time;
+    document.getElementById("receiptStation").textContent = lastReceipt.station;
+    document.getElementById("receiptMethod").textContent = lastReceipt.method;
+    document.getElementById("receiptFolio").textContent = lastReceipt.folio;
+    document.getElementById("receiptTotal").textContent = `$${lastReceipt.total} MXN`;
+    document.getElementById("receiptEmail").value = currentUser.email;
+
+    openModal("receiptModal");
+}
+
+function resetCardFields() {
+    document.getElementById("cardName").value = "";
+    document.getElementById("cardNumber").value = "";
+    document.getElementById("cardExpiry").value = "";
+    document.getElementById("cardCvv").value = "";
+    document.getElementById("cardVerified").style.display = "none";
+    const msg = document.getElementById("paymentMessage");
+    if (msg) { msg.className = "message"; msg.textContent = ""; }
+}
+
+function acceptReceipt() {
+    if (!lastReceipt) return;
+    const email = document.getElementById("receiptEmail").value.trim();
+    if (!email) { alert("Escribe un correo válido."); return; }
+
+    const subject = encodeURIComponent("Recibo PowerSpot LATAM - " + lastReceipt.folio);
+    const body = encodeURIComponent(`POWERSPOT LATAM\nEnergía donde la necesitas.\n\nRECIBO DE RENTA OFICIAL\n------------------------------\nCliente: ${lastReceipt.customer}\nEquipo: ${lastReceipt.equipment}\nDuración: ${lastReceipt.time}\nEstación: ${lastReceipt.station}\nMétodo: ${lastReceipt.method}\nFolio: ${lastReceipt.folio}\nTotal: $${lastReceipt.total} MXN\n------------------------------\nProyecto Escolar Demostrativo LATAM.`);
+
+    window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
+
+    const rMsg = document.getElementById("receiptMessage");
+    rMsg.className = "message success";
+    rMsg.textContent = `✅ Correo preparado para enviarse a ${email}`;
+}
+
+/* ==========================================================
+   MODALES GENERALES
+========================================================== */
+function openModal(id) {
+    const m = document.getElementById(id);
+    if (m) m.classList.add("active");
+}
+
+function closeModal(id) {
+    const m = document.getElementById(id);
+    if (m) m.classList.remove("active");
+}
+
+document.querySelectorAll(".modal").forEach(modal => {
+    modal.addEventListener("click", e => {
+        if (e.target === modal) modal.classList.remove("active");
+    });
+});
+
+document.addEventListener("keydown", e => {
+    if (e.key === "Escape") {
+        document.querySelectorAll(".modal.active").forEach(m => m.classList.remove("active"));
+    }
+});
+
+/* ==========================================================
+   INICIALIZACIÓN GENERAL
+========================================================== */
+populateStateFilter();
+populateRentalStations();
+renderStations();
+mostrarSoloPinesFiltrados(stations);
+calculatePrice();
+restoreSession();
+
+document.getElementById("totalStations").textContent = stations.length;
+changePaymentMethod();
+
+setTimeout(() => {
+    map.invalidateSize();
+}, 600);
+</script>
+
+</body>
+</html>
